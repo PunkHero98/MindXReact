@@ -1,9 +1,36 @@
 .overlay {
-    position: fixed; /* Cố định overlay trên màn hình */
-    top: 0;
-    left: 0;
-    width: 100%; /* Chiều rộng toàn màn hình */
-    height: 100%; /* Chiều cao toàn màn hình */
-    background-color: rgba(0, 0, 0, 0.7); /* Màu nền mờ (đen 50%) */
-    z-index: 10; /* Hiển thị lớp overlay trên các phần tử khác */
-  }
+  position: fixed; /* Cố định overlay trên màn hình */
+  top: 0;
+  left: 0;
+  width: 100%; /* Chiều rộng toàn màn hình */
+  height: 100%; /* Chiều cao toàn màn hình */
+  background-color: rgba(0, 0, 0, 0.7); /* Màu nền mờ (đen 50%) */
+  z-index: 10; /* Hiển thị lớp overlay trên các phần tử khác */
+}
+
+.merriweather {
+  font-family: "Merriweather", serif;
+  font-weight: 300;
+  font-style: normal;
+}
+.merriweather-bold {
+  font-family: "Merriweather", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.merriweather-bolder {
+  font-family: "Merriweather", serif;
+  font-weight: 700;
+  font-style: normal;
+}
+.pacifico {
+  font-family: "Pacifico", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+.roboto-slab-base {
+  font-family: "Roboto Slab", serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
