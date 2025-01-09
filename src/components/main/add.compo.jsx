@@ -11,7 +11,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState(null);
-  const [assignment, setAssignment] = useState("MindX");
+  const [assignment, setAssignment] = useState("");
   const [status, setStatus] = useState("To do");
   const [check, setCheck] = useState("---");
 
@@ -25,7 +25,17 @@ function Addnew({ onXmarkClick, onSave, note }) {
       setStatus(note.status);
     }
   }, [note]);
-
+  const renderSelect = () =>{
+    const users = [
+      { userId: 1, name: "Nguyễn Văn A" },
+      { userId: 2, name: "Trịnh Hồng M" },
+      { userId: 3, name: "Lạc Khôi B" }
+    ]
+    return [...users.map(f => ({
+      label: <span>{f.name}</span>,
+      value: f.name,
+    }))]
+  }
   const handleSave = () => {
     const updatedNote = { id, title, description, assignment, date, status };
     onSave(updatedNote);
@@ -148,46 +158,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
             className="merriweather"
             value={assignment}
             onChange={handleAssingment}
-            options={[
-              {
-                label: <span>manager</span>,
-                title: "manager",
-                options: [
-                  {
-                    label: <span>Jack</span>,
-                    value: "Jack",
-                  },
-                  {
-                    label: <span>Lucy</span>,
-                    value: "Lucy",
-                  },
-                ],
-              },
-              {
-                label: <span>engineer</span>,
-                title: "engineer",
-                options: [
-                  {
-                    label: <span>Chloe</span>,
-                    value: "Chloe",
-                  },
-                  {
-                    label: <span>Lucas</span>,
-                    value: "Lucas",
-                  },
-                ],
-              },
-              {
-                label: <span>school</span>,
-                title: "school",
-                options: [
-                  {
-                    label: <span>MindX</span>,
-                    value: "MindX",
-                  },
-                ],
-              },
-            ]}
+            options={renderSelect()}
           />
           <div className="opacity-0">
             <span>----</span>

@@ -1,14 +1,18 @@
-import Addnew from "./components/add.compo.jsx";
-import PopupModal from "./components/PopupModal.compo.jsx";
-import HeaderApp from "./components/Header.compo.jsx";
+import Addnew from "./components/main/add.compo.jsx";
+import PopupModal from "./components/main/PopupModal.compo.jsx";
+import HeaderApp from "./components/main/Header.compo.jsx";
+import LoginForm from "./components/login/loginForm.compo.jsx";
 import { useState } from "react";
 import "./App.css";
 function App() {
+  const [isLogin , setIsLogin] = useState(false);
   const [isAddNewVisible, setIsAddNewVisible] = useState(false);
   const [editNote, setEditNote] = useState(null);
   const [searchQuerry, setSearchQuerry] = useState("");
   const [items, setItems] = useState([]);
   const listCard = ["To do", "In Progress", "In Review", "Done"];
+  
+  const handleLogin = () => setIsLogin(prevItem => !prevItem);
   const handleSearch = (value) => {
     setSearchQuerry(value);
   };
@@ -46,33 +50,37 @@ function App() {
   };
   return (
     <>
-      <div className={`${isAddNewVisible && "overlay"} h-screen`}>
-        <HeaderApp
-          handleSearch={handleSearch}
-          openAddNew={openAddNew}
-          isAddNewVisible={isAddNewVisible}
-        />
-        <div className="main px-8 grid grid-cols-4 gap-8 ">
-          {listCard.map((item, index) => (
-            <PopupModal
-              key={`${Date.now()}-${index}`}
-              title={item}
-              items={filterItemsByStatus(item)}
-              toggle={isAddNewVisible}
-              onEdit={handleEditNote}
-              searchQuerry={searchQuerry}
-              openAddNew={() => openAddNew(item)}
+      {!isLogin ? <LoginForm handleLogin={handleLogin} /> : 
+        <>
+          <div className={`${isAddNewVisible && "overlay"} h-screen`}>
+            <HeaderApp
+              handleSearch={handleSearch}
+              openAddNew={openAddNew}
+              isAddNewVisible={isAddNewVisible}
             />
-          ))}
-        </div>
-      </div>
-      {isAddNewVisible && (
-        <Addnew
-          onXmarkClick={closeAddNew}
-          onSave={handleAddNewItem}
-          note={editNote}
-        />
-      )}
+            <div className="main px-8 grid grid-cols-4 gap-8 ">
+              {listCard.map((item, index) => (
+                <PopupModal
+                  key={`${Date.now()}-${index}`}
+                  title={item}
+                  items={filterItemsByStatus(item)}
+                  toggle={isAddNewVisible}
+                  onEdit={handleEditNote}
+                  searchQuerry={searchQuerry}
+                  openAddNew={() => openAddNew(item)}
+                />
+              ))}
+            </div>
+          </div>
+          {isAddNewVisible && (
+            <Addnew
+              onXmarkClick={closeAddNew}
+              onSave={handleAddNewItem}
+              note={editNote}
+            />
+          )}
+        </>
+      }
     </>
   );
 }

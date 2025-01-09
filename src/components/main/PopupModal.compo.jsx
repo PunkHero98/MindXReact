@@ -65,7 +65,7 @@ PopupModal.propTypes = {
   toggle: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
-  searchQuerry: PropTypes.func.isRequired,
+  searchQuerry: PropTypes.string.isRequired,
   openAddNew: PropTypes.func.isRequired,
 };
 export default PopupModal;
