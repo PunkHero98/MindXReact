@@ -50,20 +50,31 @@ function App() {
     openAddNew();
   };
 
-  // const handleAddNewItem = (note) => {
-  //   console.log(note);
-  //   if (note["_id"]) {
-  //     setItems((prevItem) =>
-  //       prevItem.map((n) => (n["_id"] === note["_id"] ? { ...n, ...note } : n))
-  //     );
-  //     console.log(true);
-  //   } else {
-  //     const newItem = { ...note, _id: Date.now() };
-  //     setItems((prevItem) => [...prevItem, newItem]);
-  //     console.log(false);
-  //   }
-  //   closeAddNew();
-  // };
+  const handleAddNewItem = (note) => {
+    console.log(note);
+    // if (note["_id"]) {
+    //   setItems((prevItem) =>
+    //     prevItem.map((n) =>
+    //       n["_id"] === note["_id"] ? { ...n, ...note } : { ...note }
+    //     )
+    //   );
+    //   console.log(true);
+    // } else {
+    //   const newItem = { ...note, _id: Date.now() };
+    //   setItems((prevItem) => [...prevItem, newItem]);
+    //   console.log(false);
+    // }
+    setItems(
+      (prevItems) =>
+        prevItems.some((n) => n["_id"] === note["_id"]) // Kiểm tra xem có ghi chú với _id trùng không
+          ? prevItems.map(
+              (n) => (n["_id"] === note["_id"] ? { ...n, ...note } : n) // Nếu có _id trùng, cập nhật ghi chú
+            )
+          : [...prevItems, { ...note }] // Nếu không có _id trùng, thêm ghi chú mới vào
+    );
+
+    closeAddNew();
+  };
 
   const filterItemsByStatus = (status) => {
     const result = items.filter((item) => item.status === status);

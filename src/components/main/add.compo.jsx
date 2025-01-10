@@ -41,52 +41,52 @@ function Addnew({ onXmarkClick, onSave, note }) {
     ];
   };
   const handleSave = async () => {
-    // try {
-    //   const updatedNote = { title, description, assignment, date, status };
-    //   const result = await insertNote(updatedNote);
-    //   if (result.success === true) {
-    //     onSave(result.data.data);
-    //     setTitle("");
-    //     setDescription("");
-    //     setDate("");
-    //     setAssignment("");
-    //     setStatus("To do");
-    //     notification.success({
-    //       message: "Success",
-    //       placement: "topRight",
-    //       duration: 1.5,
-    //     });
-    //     return;
-    //   }
+    try {
+      const updatedNote = { title, description, assignment, date, status };
+      const result = await insertNote(updatedNote);
+      if (result.success === true) {
+        onSave(result.data.data);
+        setTitle("");
+        setDescription("");
+        setDate("");
+        setAssignment("");
+        setStatus("To do");
+        notification.success({
+          message: "Success",
+          placement: "topRight",
+          duration: 1.5,
+        });
+        return;
+      }
 
-    //   notification.error({
-    //     message: result.message,
-    //     placement: "topRight",
-    //     duration: 1.5,
-    //   });
-    // } catch (err) {
-    //   notification.error({
-    //     message: err.message,
-    //     description: "Please try it again later !",
-    //     placement: "topRight",
-    //     duration: 1.5,
-    //   });
-    // }
-    const updatedNote = {
-      _id: id,
-      title,
-      description,
-      assignment,
-      date,
-      status,
-    };
+      notification.error({
+        message: result.message,
+        placement: "topRight",
+        duration: 1.5,
+      });
+    } catch (err) {
+      notification.error({
+        message: err.message,
+        description: "Please try it again later !",
+        placement: "topRight",
+        duration: 1.5,
+      });
+    }
+    // const updatedNote = {
+    //   _id: id,
+    //   title,
+    //   description,
+    //   assignment,
+    //   date,
+    //   status,
+    // };
 
-    onSave(updatedNote);
-    setTitle("");
-    setDescription("");
-    setDate("");
-    setAssignment("");
-    setStatus("To do");
+    // onSave(updatedNote);
+    // setTitle("");
+    // setDescription("");
+    // setDate("");
+    // setAssignment("");
+    // setStatus("To do");
   };
   const handleDate = (date) => {
     if (date) {
