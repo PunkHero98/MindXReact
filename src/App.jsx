@@ -2,17 +2,34 @@ import Addnew from "./components/main/add.compo.jsx";
 import PopupModal from "./components/main/PopupModal.compo.jsx";
 import HeaderApp from "./components/main/Header.compo.jsx";
 import LoginForm from "./components/login/loginForm.compo.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 function App() {
-  const [isLogin , setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const [isAddNewVisible, setIsAddNewVisible] = useState(false);
   const [editNote, setEditNote] = useState(null);
   const [searchQuerry, setSearchQuerry] = useState("");
   const [items, setItems] = useState([]);
+  const [nameForHeader, setNameForHeader] = useState(null);
   const listCard = ["To do", "In Progress", "In Review", "Done"];
-  
-  const handleLogin = () => setIsLogin(prevItem => !prevItem);
+
+  const handleLogin = () => setIsLogin((prevState) => !prevState);
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser"); // Xóa thông tin đăng nhập
+    setIsLogin(false); // Cập nhật trạng thái là chưa đăng nhập
+    setNameForHeader(null);
+  };
+  useEffect(() => {
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (currentUser && currentUser.username) {
+      setIsLogin(true);
+      setNameForHeader(currentUser.username);
+    } else {
+      setIsLogin(false);
+    }
+  }, []);
+
   const handleSearch = (value) => {
     setSearchQuerry(value);
   };
@@ -33,30 +50,42 @@ function App() {
     openAddNew();
   };
 
-  const handleAddNewItem = (note) => {
-    if (note.id) {
-      setItems((prevItem) =>
-        prevItem.map((n) => (n.id === note.id ? { ...n, ...note } : n))
-      );
-    } else {
-      const newItem = { ...note, id: Date.now() };
-      setItems((prevItem) => [...prevItem, newItem]);
-    }
-    closeAddNew();
-  };
+  // const handleAddNewItem = (note) => {
+  //   console.log(note);
+  //   if (note["_id"]) {
+  //     setItems((prevItem) =>
+  //       prevItem.map((n) => (n["_id"] === note["_id"] ? { ...n, ...note } : n))
+  //     );
+  //     console.log(true);
+  //   } else {
+  //     const newItem = { ...note, _id: Date.now() };
+  //     setItems((prevItem) => [...prevItem, newItem]);
+  //     console.log(false);
+  //   }
+  //   closeAddNew();
+  // };
 
   const filterItemsByStatus = (status) => {
-    return items.filter((item) => item.status === status);
+    const result = items.filter((item) => item.status === status);
+    return result;
   };
+
+  useEffect(() => {
+    console.log("Updated items:", items);
+  }, [items]);
   return (
     <>
-      {!isLogin ? <LoginForm handleLogin={handleLogin} /> : 
+      {!isLogin ? (
+        <LoginForm handleLogin={handleLogin} setName={setNameForHeader} />
+      ) : (
         <>
           <div className={`${isAddNewVisible && "overlay"} h-screen`}>
             <HeaderApp
               handleSearch={handleSearch}
               openAddNew={openAddNew}
               isAddNewVisible={isAddNewVisible}
+              handleLogout={handleLogout}
+              username={nameForHeader}
             />
             <div className="main px-8 grid grid-cols-4 gap-8 ">
               {listCard.map((item, index) => (
@@ -80,7 +109,7 @@ function App() {
             />
           )}
         </>
-      }
+      )}
     </>
   );
 }

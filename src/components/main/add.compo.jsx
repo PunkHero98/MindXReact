@@ -1,9 +1,11 @@
 // import { HiXMark } from "react-icons/hi2";
 import { useState, useEffect } from "react";
-import { Select, Input, DatePicker, Button } from "antd";
+import { Select, Input, DatePicker, Button, notification } from "antd";
 import { FlagFilled, CloseSquareOutlined } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import moment from "moment";
+import { getNote } from "../../api/apiHandle.js";
+import { insertNote } from "../../api/apiHandle.js";
 const { TextArea } = Input;
 
 function Addnew({ onXmarkClick, onSave, note }) {
@@ -17,7 +19,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
 
   useEffect(() => {
     if (note) {
-      setId(note.id || null);
+      setId(note["_id"] || null);
       setTitle(note.title);
       setDescription(note.description);
       setAssignment(note.assignment);
@@ -25,21 +27,61 @@ function Addnew({ onXmarkClick, onSave, note }) {
       setStatus(note.status);
     }
   }, [note]);
-  const renderSelect = () =>{
+  const renderSelect = () => {
     const users = [
       { userId: 1, name: "Nguyễn Văn A" },
       { userId: 2, name: "Trịnh Hồng M" },
-      { userId: 3, name: "Lạc Khôi B" }
-    ]
-    return [...users.map(f => ({
-      label: <span>{f.name}</span>,
-      value: f.name,
-    }))]
-  }
-  const handleSave = () => {
-    const updatedNote = { id, title, description, assignment, date, status };
-    onSave(updatedNote);
+      { userId: 3, name: "Lạc Khôi B" },
+    ];
+    return [
+      ...users.map((f) => ({
+        label: <span>{f.name}</span>,
+        value: f.name,
+      })),
+    ];
+  };
+  const handleSave = async () => {
+    // try {
+    //   const updatedNote = { title, description, assignment, date, status };
+    //   const result = await insertNote(updatedNote);
+    //   if (result.success === true) {
+    //     onSave(result.data.data);
+    //     setTitle("");
+    //     setDescription("");
+    //     setDate("");
+    //     setAssignment("");
+    //     setStatus("To do");
+    //     notification.success({
+    //       message: "Success",
+    //       placement: "topRight",
+    //       duration: 1.5,
+    //     });
+    //     return;
+    //   }
 
+    //   notification.error({
+    //     message: result.message,
+    //     placement: "topRight",
+    //     duration: 1.5,
+    //   });
+    // } catch (err) {
+    //   notification.error({
+    //     message: err.message,
+    //     description: "Please try it again later !",
+    //     placement: "topRight",
+    //     duration: 1.5,
+    //   });
+    // }
+    const updatedNote = {
+      _id: id,
+      title,
+      description,
+      assignment,
+      date,
+      status,
+    };
+
+    onSave(updatedNote);
     setTitle("");
     setDescription("");
     setDate("");
@@ -75,7 +117,6 @@ function Addnew({ onXmarkClick, onSave, note }) {
           <FlagFilled className="text-3xl text-green-400" />
         </div>
 
-        {/* <HiXMark className="text-3xl " onClick={onXmarkClick} /> */}
         <CloseSquareOutlined
           onClick={onXmarkClick}
           className="text-4xl text-[#f5222d] hover:bg-[#f5222d] hover:text-white"
@@ -223,7 +264,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
           Save
         </button> */}
         <Button
-          color="purple"
+          color="primary"
           onClick={checkTitle}
           variant="solid"
           className="save pacifico w-[46%] h-12 text-xl "
@@ -239,7 +280,7 @@ Addnew.propTypes = {
   onXmarkClick: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   note: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    _id: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
