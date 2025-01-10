@@ -2,27 +2,63 @@ import Addnew from "./components/main/add.compo.jsx";
 import PopupModal from "./components/main/PopupModal.compo.jsx";
 import HeaderApp from "./components/main/Header.compo.jsx";
 import LoginForm from "./components/login/loginForm.compo.jsx";
+import CalendarWithEvents from "./components/smallComponent/calendar.jsx";
+import { notification } from "antd";
 import { useState, useEffect } from "react";
+import { getNote } from "./api/apiHandle.js";
+import { SyncOutlined } from "@ant-design/icons";
 import "./App.css";
 function App() {
   const [isLogin, setIsLogin] = useState(false);
   const [isAddNewVisible, setIsAddNewVisible] = useState(false);
+  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [editNote, setEditNote] = useState(null);
   const [searchQuerry, setSearchQuerry] = useState("");
   const [items, setItems] = useState([]);
   const [nameForHeader, setNameForHeader] = useState(null);
+  const [isLoading , setIsLoading] = useState(false);
   const listCard = ["To do", "In Progress", "In Review", "Done"];
 
-  const handleLogin = () => setIsLogin((prevState) => !prevState);
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser"); // Xóa thông tin đăng nhập
-    setIsLogin(false); // Cập nhật trạng thái là chưa đăng nhập
-    setNameForHeader(null);
+  const handleLogin = () => {
+    setIsLogin((prevState) => !prevState);
+    fetchData();
   };
-  useEffect(() => {
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem('selectUser') 
+    setIsLogin(false); 
+    setNameForHeader(null);
+    setItems([]);
+  };
+  const fetchData = async () =>{
+      try{
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        const result = await getNote();
+        if(result.success === true){
+          setItems(() => (
+            result.data.filter( item => item.user_id == currentUser.user_id)
+          ));
+          return;
+        }
+        notification.error({
+          message: result.message,
+          placement: "topRight",
+          duration: 1.5,
+        });
+        return;
+      }catch(err){
+        notification.error({
+          message: err.message,
+          placement: "topRight",
+          duration: 1.5,
+        });
+      }
+    }
+  useEffect( () => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
     if (currentUser && currentUser.username) {
+      fetchData()
       setIsLogin(true);
       setNameForHeader(currentUser.username);
     } else {
@@ -49,30 +85,14 @@ function App() {
     setEditNote(note);
     openAddNew();
   };
-
-  const handleAddNewItem = (note) => {
-    console.log(note);
-    // if (note["_id"]) {
-    //   setItems((prevItem) =>
-    //     prevItem.map((n) =>
-    //       n["_id"] === note["_id"] ? { ...n, ...note } : { ...note }
-    //     )
-    //   );
-    //   console.log(true);
-    // } else {
-    //   const newItem = { ...note, _id: Date.now() };
-    //   setItems((prevItem) => [...prevItem, newItem]);
-    //   console.log(false);
-    // }
-    setItems(
-      (prevItems) =>
-        prevItems.some((n) => n["_id"] === note["_id"]) // Kiểm tra xem có ghi chú với _id trùng không
-          ? prevItems.map(
-              (n) => (n["_id"] === note["_id"] ? { ...n, ...note } : n) // Nếu có _id trùng, cập nhật ghi chú
-            )
-          : [...prevItems, { ...note }] // Nếu không có _id trùng, thêm ghi chú mới vào
-    );
-
+  const closeCalendar = () => {
+    setIsCalendarVisible(false)
+  };
+  const openCalendar = () =>{
+    setIsCalendarVisible(true);
+  }
+  const handleAddNewItem = () => {
+    fetchData()
     closeAddNew();
   };
 
@@ -81,25 +101,29 @@ function App() {
     return result;
   };
 
-  useEffect(() => {
-    console.log("Updated items:", items);
-  }, [items]);
+  useEffect(() =>{
+    setIsLoading(true);
+  } , [items])
   return (
     <>
       {!isLogin ? (
         <LoginForm handleLogin={handleLogin} setName={setNameForHeader} />
       ) : (
         <>
-          <div className={`${isAddNewVisible && "overlay"} h-screen`}>
+          <div className={`${isAddNewVisible && "overlay"} ${isCalendarVisible && "overlay"} h-screen`}>
             <HeaderApp
               handleSearch={handleSearch}
               openAddNew={openAddNew}
               isAddNewVisible={isAddNewVisible}
               handleLogout={handleLogout}
               username={nameForHeader}
+              openCalendar={openCalendar}
+              
             />
-            <div className="main px-8 grid grid-cols-4 gap-8 ">
-              {listCard.map((item, index) => (
+            {isLoading ? (
+              <div className="main px-8 grid grid-cols-4 gap-8 ">
+              {
+              listCard.map((item, index) => (
                 <PopupModal
                   key={`${Date.now()}-${index}`}
                   title={item}
@@ -110,7 +134,8 @@ function App() {
                   openAddNew={() => openAddNew(item)}
                 />
               ))}
-            </div>
+            </div>) : (<SyncOutlined spin />)  }
+            
           </div>
           {isAddNewVisible && (
             <Addnew
@@ -119,6 +144,7 @@ function App() {
               note={editNote}
             />
           )}
+          {isCalendarVisible && <CalendarWithEvents  onCloseCalendar={closeCalendar}/>}
         </>
       )}
     </>

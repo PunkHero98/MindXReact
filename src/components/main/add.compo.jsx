@@ -1,12 +1,13 @@
 // import { HiXMark } from "react-icons/hi2";
 import { useState, useEffect } from "react";
-import { Select, Input, DatePicker, Button, notification } from "antd";
-import { FlagFilled, CloseSquareOutlined } from "@ant-design/icons";
+import { Select, Input, DatePicker, Button, notification , Modal } from "antd";
+import { FlagFilled, CloseSquareOutlined , Loading3QuartersOutlined ,ExclamationCircleFilled } from "@ant-design/icons";
 import PropTypes from "prop-types";
 import moment from "moment";
-import { getNote } from "../../api/apiHandle.js";
-import { insertNote } from "../../api/apiHandle.js";
+import { insertNote , updateNote , deleteNote } from "../../api/apiHandle.js";
+
 const { TextArea } = Input;
+const { confirm } = Modal;
 
 function Addnew({ onXmarkClick, onSave, note }) {
   const [id, setId] = useState(null);
@@ -16,7 +17,8 @@ function Addnew({ onXmarkClick, onSave, note }) {
   const [assignment, setAssignment] = useState("");
   const [status, setStatus] = useState("To do");
   const [check, setCheck] = useState("---");
-
+  const [isLoading , setIsLoading] = useState(false);
+  const [loadingForDelete , setLoadingForDelete] = useState(false);
   useEffect(() => {
     if (note) {
       setId(note["_id"] || null);
@@ -28,24 +30,22 @@ function Addnew({ onXmarkClick, onSave, note }) {
     }
   }, [note]);
   const renderSelect = () => {
-    const users = [
-      { userId: 1, name: "Nguyễn Văn A" },
-      { userId: 2, name: "Trịnh Hồng M" },
-      { userId: 3, name: "Lạc Khôi B" },
-    ];
+    const users = JSON.parse(localStorage.getItem('selectUser'));
     return [
       ...users.map((f) => ({
-        label: <span>{f.name}</span>,
-        value: f.name,
+        label: <span>{f}</span>,
+        value: f,
       })),
     ];
   };
+
   const handleSave = async () => {
     try {
-      const updatedNote = { title, description, assignment, date, status };
-      const result = await insertNote(updatedNote);
-      if (result.success === true) {
-        onSave(result.data.data);
+      const {user_id} = JSON.parse(localStorage.getItem('currentUser'));
+      const updatedNote = { user_id, title, description, assignment, date, status }
+        const result = await insertNote(updatedNote);
+        if (result.success === true) {
+        onSave();
         setTitle("");
         setDescription("");
         setDate("");
@@ -56,6 +56,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
           placement: "topRight",
           duration: 1.5,
         });
+        setIsLoading(false);
         return;
       }
 
@@ -72,28 +73,86 @@ function Addnew({ onXmarkClick, onSave, note }) {
         duration: 1.5,
       });
     }
-    // const updatedNote = {
-    //   _id: id,
-    //   title,
-    //   description,
-    //   assignment,
-    //   date,
-    //   status,
-    // };
-
-    // onSave(updatedNote);
-    // setTitle("");
-    // setDescription("");
-    // setDate("");
-    // setAssignment("");
-    // setStatus("To do");
   };
+  const handleOk = () =>{
+    setLoadingForDelete(true);
+    handleDelete();
+  }
+  const handleDelete = async ()=>{
+    try {
+        const result = await deleteNote(id);
+        if (result.success === true) {
+        onSave();
+        setTitle("");
+        setDescription("");
+        setDate("");
+        setAssignment("");
+        setStatus("To do");
+        notification.success({
+          message: "Success",
+          placement: "topRight",
+          duration: 1.5,
+        });
+        setLoadingForDelete(false);
+
+        return;
+      }
+  
+      notification.error({
+        message: result.message,
+        placement: "topRight",
+        duration: 1.5,
+      });
+    } catch (err) {
+      notification.error({
+        message: err.message,
+        description: "Please try it again later !",
+        placement: "topRight",
+        duration: 1.5,
+      });
+    }
+  }
+
+const handleEdit = async ()=>{
+  try {
+    const updatedNote = { title, description, assignment, date, status  }
+      const result = await updateNote(id ,updatedNote);
+      if (result.success === true) {
+      onSave();
+      setTitle("");
+      setDescription("");
+      setDate("");
+      setAssignment("");
+      setStatus("To do");
+      notification.success({
+        message: "Success",
+        placement: "topRight",
+        duration: 1.5,
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    notification.error({
+      message: result.message,
+      placement: "topRight",
+      duration: 1.5,
+    });
+  } catch (err) {
+    notification.error({
+      message: err.message,
+      description: "Please try it again later !",
+      placement: "topRight",
+      duration: 1.5,
+    });
+  }
+}
   const handleDate = (date) => {
     if (date) {
       const customFormat = date.format("MMM Do YYYY");
-      setDate(customFormat); // Lưu chuỗi
+      setDate(customFormat);
     } else {
-      setDate(null); // Xử lý nếu không chọn ngày
+      setDate(null);
     }
   };
   const handleAssingment = (value) => {
@@ -107,8 +166,25 @@ function Addnew({ onXmarkClick, onSave, note }) {
       setCheck("Title is required");
     } else {
       setCheck("---");
-      handleSave();
+      id ? handleEdit() : handleSave();
+    setIsLoading(true);
     }
+  };
+  const showDeleteConfirm = () => {
+    confirm({
+      title: 'Are you sure delete this task?',
+      icon: <ExclamationCircleFilled />,
+      content: 'Some descriptions',
+      okText: 'Yes',
+      okType: 'danger',
+      cancelText: 'No',
+      onOk() {
+        handleOk();
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
   };
   return (
     <div className="w-[700px] h-[600px] bg-white rounded-lg px-4 py-2 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[12] border-2 shadow-lg">
@@ -243,33 +319,25 @@ function Addnew({ onXmarkClick, onSave, note }) {
         </div>
       </div>
       <div className="last_row flex justify-between items-center mt-2">
-        {/* <button
-          onClick={onXmarkClick}
-          className="cancel w-[46%] p-3 border-2 rounded-xl text-xl "
-        >
-          Cancel
-        </button> */}
+
         <Button
           color="danger"
-          onClick={onXmarkClick}
+          onClick={id ? showDeleteConfirm : onXmarkClick}
           variant="outlined"
-          className="cancel pacifico w-[46%] h-12 text-xl"
+          loading={loadingForDelete}
+          disabled={loadingForDelete}
+          className="cancel pacifico w-[46%] h-12 text-2xl"
         >
-          Cancel
+          {id ? "Delete" : 'Cancel'}
         </Button>
-        {/* <button
-          onClick={checkTitle}
-          className="save bg-[#7F56D9] w-[46%] p-3 border-2 rounded-xl text-xl text-white"
-        >
-          Save
-        </button> */}
         <Button
           color="primary"
           onClick={checkTitle}
           variant="solid"
-          className="save pacifico w-[46%] h-12 text-xl "
+          className="save pacifico w-[46%] h-12 text-2xl "
+          disabled={isLoading}
         >
-          Save
+          {!isLoading ? 'Save' : <Loading3QuartersOutlined spin />}
         </Button>
       </div>
     </div>
@@ -280,7 +348,7 @@ Addnew.propTypes = {
   onXmarkClick: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   note: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
+    _id: PropTypes.string,
     title: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,

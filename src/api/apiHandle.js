@@ -44,4 +44,37 @@ const getNote = async () => {
     return { success: false, message: err.message };
   }
 };
-export { getUser, insertNote, getNote };
+
+const updateNote = async (id , note) => {
+  try {
+    const url = `/api/resources/Note/${id}?apiKey=${apiKey}`;
+    const response = await fetch(url , {
+      method:'PUT',
+      body:JSON.stringify(note)
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    return { success: true, data: data.data.data };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+};
+
+const deleteNote = async (id) => {
+  try {
+    const url = `/api/resources/Note/${id}?apiKey=${apiKey}`;
+    const response = await fetch(url , {
+      method:'DELETE'
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    return { success: true, message : data.message };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+};
+export { getUser, insertNote, getNote , updateNote ,deleteNote};

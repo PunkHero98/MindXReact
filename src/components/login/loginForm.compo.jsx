@@ -1,5 +1,5 @@
 import { Button, Input, notification } from "antd";
-import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import { EyeInvisibleOutlined, EyeTwoTone , Loading3QuartersOutlined } from "@ant-design/icons";
 import { getUser } from "../../api/apiHandle.js";
 import { useState } from "react";
 import PropTypes from "prop-types";
@@ -12,12 +12,15 @@ function LoginForm({ handleLogin, setName }) {
   const [emailNotification, setEmailNotification] = useState("---");
   const [passwordNotification, setPasswordNotification] = useState("---");
 
+  const [isLoading , setIsLoading] =useState(false);
+
   const userNoti = userNameNotification === "---";
   const emailNoti = emailNotification === "---";
   const passwordNoti = passwordNotification === "---";
 
   const checkLogin = async () => {
     try {
+        setIsLoading(true);
       const result = await getUser();
       const user = result.find((item) => item.username === usernameValue);
 
@@ -47,13 +50,16 @@ function LoginForm({ handleLogin, setName }) {
         if (user.password === passwordValue && emailValue === user.email) {
           setTimeout(() => {
             handleLogin();
-          }, 3000);
+          }, 1000);
           const userss = JSON.stringify({
-            id: user["_id"],
+            user_id: user["_id"],
             username: user.username,
           });
           setName(user.username);
+          const selectUser = result.map(item => item.username);
+          localStorage.setItem('selectUser' , JSON.stringify(selectUser));
           localStorage.setItem("currentUser", userss);
+          setIsLoading(false);
           notification.success({
             message: "Login Successful",
             description: "You have logged in successfully!",
@@ -64,15 +70,22 @@ function LoginForm({ handleLogin, setName }) {
         } else {
           if (user.password !== passwordValue) {
             setPasswordNotification("Incorrect password !");
+            setIsLoading(false);
+
           }
           if (emailValue !== user.email) {
             setEmailNotification("Email does not match with username !");
+            setIsLoading(false);
+
           }
         }
       } else {
         setUserNameNotification("Username not found !");
+        setIsLoading(false);
+
       }
     } catch (err) {
+    setIsLoading(false);
       notification.error({
         message: err.message,
         description: "Please try it again later !",
@@ -176,8 +189,9 @@ function LoginForm({ handleLogin, setName }) {
             variant="solid"
             color="purple"
             onClick={checkLogin}
+            disabled={isLoading}
           >
-            Login
+            {!isLoading ? 'Login' : <Loading3QuartersOutlined spin />}
           </Button>
         </div>
       </div>

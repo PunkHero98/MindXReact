@@ -9,7 +9,7 @@ function Note({ items, onEdit }) {
   ).getTime();
   const today = Date.now();
 
-  const daysDifference = Math.round((cleanDate - today) / 86400000);
+  const daysDifference = Math.floor((cleanDate - today) / 86400000);
 
   const getFlagColors = () => {
     if (daysDifference < 0) return ["#ef4444", "#fecaca"];
