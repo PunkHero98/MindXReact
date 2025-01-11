@@ -1,9 +1,8 @@
-import  { useState } from "react";
-import { Calendar, Modal, Badge ,Button } from "antd";
+import { useState } from "react";
+import { Calendar, Modal, Badge, Button } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 
-const CalendarWithEvents = (onCloseCalendar) => {
-
+const CalendarWithEvents = ({ onCloseCalendar }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [events, setEvents] = useState({
@@ -32,8 +31,12 @@ const CalendarWithEvents = (onCloseCalendar) => {
 
   return (
     <div className="ant-picker-calendar w-1/2 absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[12]">
-        <Button className="absolute top-8 left-8 " onClick={onCloseCalendar || (() => {})} icon={<CloseOutlined />}></Button>
-      <Calendar cellRender={dateCellRender} onSelect={onSelectDate}/>
+      <Button
+        className="absolute top-8 left-8 "
+        onClick={onCloseCalendar || (() => {})}
+        icon={<CloseOutlined />}
+      ></Button>
+      <Calendar cellRender={dateCellRender} onSelect={onSelectDate} />
       <Modal
         title={`Events on ${selectedDate}`}
         // open={isModalVisible}
@@ -51,8 +54,6 @@ const CalendarWithEvents = (onCloseCalendar) => {
         ) : (
           <p>No events for this date.</p>
         )}
-
-        
       </Modal>
     </div>
   );

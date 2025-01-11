@@ -3,6 +3,7 @@ import PopupModal from "./components/main/PopupModal.compo.jsx";
 import HeaderApp from "./components/main/Header.compo.jsx";
 import LoginForm from "./components/login/loginForm.compo.jsx";
 import CalendarWithEvents from "./components/smallComponent/calendar.jsx";
+import RegisForm from "./components/register/regisForm.compo.jsx";
 import { notification } from "antd";
 import { useState, useEffect } from "react";
 import { getNote } from "./api/apiHandle.js";
@@ -10,13 +11,14 @@ import { SyncOutlined } from "@ant-design/icons";
 import "./App.css";
 function App() {
   const [isLogin, setIsLogin] = useState(false);
+  const [isRegis, setIsRegis] = useState(false);
   const [isAddNewVisible, setIsAddNewVisible] = useState(false);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const [editNote, setEditNote] = useState(null);
   const [searchQuerry, setSearchQuerry] = useState("");
   const [items, setItems] = useState([]);
   const [nameForHeader, setNameForHeader] = useState(null);
-  const [isLoading , setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const listCard = ["To do", "In Progress", "In Review", "Done"];
 
   const handleLogin = () => {
@@ -25,40 +27,44 @@ function App() {
   };
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
-    localStorage.removeItem('selectUser') 
-    setIsLogin(false); 
+    localStorage.removeItem("selectUser");
+    setIsLogin(false);
     setNameForHeader(null);
     setItems([]);
   };
-  const fetchData = async () =>{
-      try{
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        const result = await getNote();
-        if(result.success === true){
-          setItems(() => (
-            result.data.filter( item => item.user_id == currentUser.user_id)
-          ));
-          return;
-        }
-        notification.error({
-          message: result.message,
-          placement: "topRight",
-          duration: 1.5,
-        });
+  const fetchData = async () => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const result = await getNote();
+      if (result.success === true) {
+        setItems(() =>
+          result.data.filter((item) => item.assignment == currentUser.username)
+        );
+        setIsLoading(true);
         return;
-      }catch(err){
-        notification.error({
-          message: err.message,
-          placement: "topRight",
-          duration: 1.5,
-        });
       }
+      setIsLoading(true);
+      notification.error({
+        message: result.message,
+        placement: "topRight",
+        duration: 1.5,
+      });
+      return;
+    } catch (err) {
+      setIsLoading(true);
+
+      notification.error({
+        message: err.message,
+        placement: "topRight",
+        duration: 1.5,
+      });
     }
-  useEffect( () => {
+  };
+  useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
     if (currentUser && currentUser.username) {
-      fetchData()
+      fetchData();
       setIsLogin(true);
       setNameForHeader(currentUser.username);
     } else {
@@ -86,31 +92,45 @@ function App() {
     openAddNew();
   };
   const closeCalendar = () => {
-    setIsCalendarVisible(false)
+    setIsCalendarVisible(false);
   };
-  const openCalendar = () =>{
+  const openCalendar = () => {
     setIsCalendarVisible(true);
-  }
+  };
   const handleAddNewItem = () => {
-    fetchData()
+    setIsLoading(false);
+    fetchData();
     closeAddNew();
   };
+  const openRegisForm = () => setIsRegis((prevItem) => !prevItem);
 
   const filterItemsByStatus = (status) => {
     const result = items.filter((item) => item.status === status);
     return result;
   };
 
-  useEffect(() =>{
-    setIsLoading(true);
-  } , [items])
+  useEffect(() => {
+    console.log(isRegis);
+  }, [isRegis]);
   return (
     <>
       {!isLogin ? (
-        <LoginForm handleLogin={handleLogin} setName={setNameForHeader} />
+        isRegis ? (
+          <RegisForm openRegisForm={openRegisForm} isRegis={isRegis} />
+        ) : (
+          <LoginForm
+            handleLogin={handleLogin}
+            setName={setNameForHeader}
+            openRegisForm={openRegisForm}
+          />
+        )
       ) : (
         <>
-          <div className={`${isAddNewVisible && "overlay"} ${isCalendarVisible && "overlay"} h-screen`}>
+          <div
+            className={`${isAddNewVisible && "overlay"} ${
+              isCalendarVisible && "overlay"
+            } h-screen`}
+          >
             <HeaderApp
               handleSearch={handleSearch}
               openAddNew={openAddNew}
@@ -118,24 +138,27 @@ function App() {
               handleLogout={handleLogout}
               username={nameForHeader}
               openCalendar={openCalendar}
-              
             />
             {isLoading ? (
               <div className="main px-8 grid grid-cols-4 gap-8 ">
-              {
-              listCard.map((item, index) => (
-                <PopupModal
-                  key={`${Date.now()}-${index}`}
-                  title={item}
-                  items={filterItemsByStatus(item)}
-                  toggle={isAddNewVisible}
-                  onEdit={handleEditNote}
-                  searchQuerry={searchQuerry}
-                  openAddNew={() => openAddNew(item)}
-                />
-              ))}
-            </div>) : (<SyncOutlined spin />)  }
-            
+                {listCard.map((item, index) => (
+                  <PopupModal
+                    key={`${Date.now()}-${index}`}
+                    title={item}
+                    items={filterItemsByStatus(item)}
+                    toggle={isAddNewVisible}
+                    onEdit={handleEditNote}
+                    searchQuerry={searchQuerry}
+                    openAddNew={() => openAddNew(item)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="absolute left-[800px] top-1/3 text-4xl text-[#1677ff]">
+                <SyncOutlined spin className="mr-12" />
+                <span className="pacifico ">Loading data ...</span>
+              </div>
+            )}
           </div>
           {isAddNewVisible && (
             <Addnew
@@ -144,7 +167,9 @@ function App() {
               note={editNote}
             />
           )}
-          {isCalendarVisible && <CalendarWithEvents  onCloseCalendar={closeCalendar}/>}
+          {isCalendarVisible && (
+            <CalendarWithEvents onCloseCalendar={closeCalendar} />
+          )}
         </>
       )}
     </>

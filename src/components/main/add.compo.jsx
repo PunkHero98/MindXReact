@@ -1,10 +1,15 @@
 // import { HiXMark } from "react-icons/hi2";
 import { useState, useEffect } from "react";
-import { Select, Input, DatePicker, Button, notification , Modal } from "antd";
-import { FlagFilled, CloseSquareOutlined , Loading3QuartersOutlined ,ExclamationCircleFilled } from "@ant-design/icons";
+import { Select, Input, DatePicker, Button, notification, Modal } from "antd";
+import {
+  FlagFilled,
+  CloseSquareOutlined,
+  Loading3QuartersOutlined,
+  ExclamationCircleFilled,
+} from "@ant-design/icons";
 import PropTypes from "prop-types";
 import moment from "moment";
-import { insertNote , updateNote , deleteNote } from "../../api/apiHandle.js";
+import { insertNote, updateNote, deleteNote } from "../../api/apiHandle.js";
 
 const { TextArea } = Input;
 const { confirm } = Modal;
@@ -17,8 +22,9 @@ function Addnew({ onXmarkClick, onSave, note }) {
   const [assignment, setAssignment] = useState("");
   const [status, setStatus] = useState("To do");
   const [check, setCheck] = useState("---");
-  const [isLoading , setIsLoading] = useState(false);
-  const [loadingForDelete , setLoadingForDelete] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingForDelete, setLoadingForDelete] = useState(false);
+
   useEffect(() => {
     if (note) {
       setId(note["_id"] || null);
@@ -30,7 +36,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
     }
   }, [note]);
   const renderSelect = () => {
-    const users = JSON.parse(localStorage.getItem('selectUser'));
+    const users = JSON.parse(localStorage.getItem("selectUser"));
     return [
       ...users.map((f) => ({
         label: <span>{f}</span>,
@@ -41,10 +47,17 @@ function Addnew({ onXmarkClick, onSave, note }) {
 
   const handleSave = async () => {
     try {
-      const {user_id} = JSON.parse(localStorage.getItem('currentUser'));
-      const updatedNote = { user_id, title, description, assignment, date, status }
-        const result = await insertNote(updatedNote);
-        if (result.success === true) {
+      const { user_id } = JSON.parse(localStorage.getItem("currentUser"));
+      const updatedNote = {
+        user_id,
+        title,
+        description,
+        assignment,
+        date,
+        status,
+      };
+      const result = await insertNote(updatedNote);
+      if (result.success === true) {
         onSave();
         setTitle("");
         setDescription("");
@@ -74,14 +87,14 @@ function Addnew({ onXmarkClick, onSave, note }) {
       });
     }
   };
-  const handleOk = () =>{
+  const handleOk = () => {
     setLoadingForDelete(true);
     handleDelete();
-  }
-  const handleDelete = async ()=>{
+  };
+  const handleDelete = async () => {
     try {
-        const result = await deleteNote(id);
-        if (result.success === true) {
+      const result = await deleteNote(id);
+      if (result.success === true) {
         onSave();
         setTitle("");
         setDescription("");
@@ -97,7 +110,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
 
         return;
       }
-  
+
       notification.error({
         message: result.message,
         placement: "topRight",
@@ -111,42 +124,42 @@ function Addnew({ onXmarkClick, onSave, note }) {
         duration: 1.5,
       });
     }
-  }
+  };
 
-const handleEdit = async ()=>{
-  try {
-    const updatedNote = { title, description, assignment, date, status  }
-      const result = await updateNote(id ,updatedNote);
+  const handleEdit = async () => {
+    try {
+      const updatedNote = { title, description, assignment, date, status };
+      const result = await updateNote(id, updatedNote);
       if (result.success === true) {
-      onSave();
-      setTitle("");
-      setDescription("");
-      setDate("");
-      setAssignment("");
-      setStatus("To do");
-      notification.success({
-        message: "Success",
+        onSave();
+        setTitle("");
+        setDescription("");
+        setDate("");
+        setAssignment("");
+        setStatus("To do");
+        notification.success({
+          message: "Success",
+          placement: "topRight",
+          duration: 1.5,
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      notification.error({
+        message: result.message,
         placement: "topRight",
         duration: 1.5,
       });
-      setIsLoading(false);
-      return;
+    } catch (err) {
+      notification.error({
+        message: err.message,
+        description: "Please try it again later !",
+        placement: "topRight",
+        duration: 1.5,
+      });
     }
-
-    notification.error({
-      message: result.message,
-      placement: "topRight",
-      duration: 1.5,
-    });
-  } catch (err) {
-    notification.error({
-      message: err.message,
-      description: "Please try it again later !",
-      placement: "topRight",
-      duration: 1.5,
-    });
-  }
-}
+  };
   const handleDate = (date) => {
     if (date) {
       const customFormat = date.format("MMM Do YYYY");
@@ -167,22 +180,22 @@ const handleEdit = async ()=>{
     } else {
       setCheck("---");
       id ? handleEdit() : handleSave();
-    setIsLoading(true);
+      setIsLoading(true);
     }
   };
   const showDeleteConfirm = () => {
     confirm({
-      title: 'Are you sure delete this task?',
+      title: "Are you sure delete this task?",
       icon: <ExclamationCircleFilled />,
-      content: 'Some descriptions',
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
+      content: "Some descriptions",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
       onOk() {
         handleOk();
       },
       onCancel() {
-        console.log('Cancel');
+        console.log("Cancel");
       },
     });
   };
@@ -319,7 +332,6 @@ const handleEdit = async ()=>{
         </div>
       </div>
       <div className="last_row flex justify-between items-center mt-2">
-
         <Button
           color="danger"
           onClick={id ? showDeleteConfirm : onXmarkClick}
@@ -328,7 +340,7 @@ const handleEdit = async ()=>{
           disabled={loadingForDelete}
           className="cancel pacifico w-[46%] h-12 text-2xl"
         >
-          {id ? "Delete" : 'Cancel'}
+          {id ? "Delete" : "Cancel"}
         </Button>
         <Button
           color="primary"
@@ -337,7 +349,7 @@ const handleEdit = async ()=>{
           className="save pacifico w-[46%] h-12 text-2xl "
           disabled={isLoading}
         >
-          {!isLoading ? 'Save' : <Loading3QuartersOutlined spin />}
+          {!isLoading ? "Save" : <Loading3QuartersOutlined spin />}
         </Button>
       </div>
     </div>
@@ -349,7 +361,7 @@ Addnew.propTypes = {
   onSave: PropTypes.func.isRequired,
   note: PropTypes.shape({
     _id: PropTypes.string,
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string,
     date: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     assignment: PropTypes.string.isRequired,

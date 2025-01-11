@@ -8,7 +8,7 @@ const getUser = async () => {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    return data.data.data;
+    return { success: true, data: data.data.data };
   } catch (err) {
     return { success: false, message: err.message };
   }
@@ -22,7 +22,7 @@ const insertNote = async (note) => {
       body: JSON.stringify(note),
     });
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      return { success: false, message: "Network response was not ok" };
     }
     const data = await response.json();
     return { success: true, data };
@@ -45,12 +45,12 @@ const getNote = async () => {
   }
 };
 
-const updateNote = async (id , note) => {
+const updateNote = async (id, note) => {
   try {
     const url = `/api/resources/Note/${id}?apiKey=${apiKey}`;
-    const response = await fetch(url , {
-      method:'PUT',
-      body:JSON.stringify(note)
+    const response = await fetch(url, {
+      method: "PUT",
+      body: JSON.stringify(note),
     });
     if (!response.ok) {
       throw new Error("Network response was not ok");
@@ -65,16 +65,55 @@ const updateNote = async (id , note) => {
 const deleteNote = async (id) => {
   try {
     const url = `/api/resources/Note/${id}?apiKey=${apiKey}`;
-    const response = await fetch(url , {
-      method:'DELETE'
+    const response = await fetch(url, {
+      method: "DELETE",
     });
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
     const data = await response.json();
-    return { success: true, message : data.message };
+    return { success: true, message: data.message };
   } catch (err) {
     return { success: false, message: err.message };
   }
 };
-export { getUser, insertNote, getNote , updateNote ,deleteNote};
+
+const getDepartment = async () => {
+  try {
+    const url = `/api/resources/department?apiKey=${apiKey}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      return { success: false, message: "Network response was not ok" };
+    }
+    const data = await response.json();
+    return { success: true, data: data.data.data };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+};
+
+const addUser = async (user) => {
+  try {
+    const url = `/api/resources/users?apiKey=${apiKey}`;
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify(user),
+    });
+    if (!response.ok) {
+      return { success: false, message: "Network response was not ok" };
+    }
+    const data = await response.json();
+    return { success: true, data: data.data.data };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+};
+export {
+  getUser,
+  insertNote,
+  getNote,
+  updateNote,
+  deleteNote,
+  getDepartment,
+  addUser,
+};

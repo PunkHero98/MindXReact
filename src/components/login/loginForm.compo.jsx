@@ -1,9 +1,13 @@
 import { Button, Input, notification } from "antd";
-import { EyeInvisibleOutlined, EyeTwoTone , Loading3QuartersOutlined } from "@ant-design/icons";
+import {
+  EyeInvisibleOutlined,
+  EyeTwoTone,
+  Loading3QuartersOutlined,
+} from "@ant-design/icons";
 import { getUser } from "../../api/apiHandle.js";
 import { useState } from "react";
 import PropTypes from "prop-types";
-function LoginForm({ handleLogin, setName }) {
+function LoginForm({ handleLogin, setName, openRegisForm }) {
   const [usernameValue, setUsernameValue] = useState("");
   const [emailValue, setEmailValue] = useState("");
   const [passwordValue, setPasswordValue] = useState("");
@@ -12,7 +16,7 @@ function LoginForm({ handleLogin, setName }) {
   const [emailNotification, setEmailNotification] = useState("---");
   const [passwordNotification, setPasswordNotification] = useState("---");
 
-  const [isLoading , setIsLoading] =useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const userNoti = userNameNotification === "---";
   const emailNoti = emailNotification === "---";
@@ -20,8 +24,18 @@ function LoginForm({ handleLogin, setName }) {
 
   const checkLogin = async () => {
     try {
-        setIsLoading(true);
+      setIsLoading(true);
       const result = await getUser();
+      if (result.success === false) {
+        notification.error({
+          message: "Error when fetching",
+          description: result.message,
+          placement: "topRight",
+          duration: 1.5,
+        });
+        setIsLoading(false);
+        return;
+      }
       const user = result.find((item) => item.username === usernameValue);
 
       const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -56,8 +70,8 @@ function LoginForm({ handleLogin, setName }) {
             username: user.username,
           });
           setName(user.username);
-          const selectUser = result.map(item => item.username);
-          localStorage.setItem('selectUser' , JSON.stringify(selectUser));
+          const selectUser = result.map((item) => item.username);
+          localStorage.setItem("selectUser", JSON.stringify(selectUser));
           localStorage.setItem("currentUser", userss);
           setIsLoading(false);
           notification.success({
@@ -71,21 +85,18 @@ function LoginForm({ handleLogin, setName }) {
           if (user.password !== passwordValue) {
             setPasswordNotification("Incorrect password !");
             setIsLoading(false);
-
           }
           if (emailValue !== user.email) {
             setEmailNotification("Email does not match with username !");
             setIsLoading(false);
-
           }
         }
       } else {
         setUserNameNotification("Username not found !");
         setIsLoading(false);
-
       }
     } catch (err) {
-    setIsLoading(false);
+      setIsLoading(false);
       notification.error({
         message: err.message,
         description: "Please try it again later !",
@@ -181,17 +192,18 @@ function LoginForm({ handleLogin, setName }) {
             className="w-[43%] pacifico h-14 text-2xl"
             variant="outlined"
             color="primary"
+            onClick={openRegisForm}
           >
             Register
           </Button>
           <Button
             className="w-[43%] h-14 pacifico text-2xl"
             variant="solid"
-            color="purple"
+            color="primary"
             onClick={checkLogin}
             disabled={isLoading}
           >
-            {!isLoading ? 'Login' : <Loading3QuartersOutlined spin />}
+            {!isLoading ? "Login" : <Loading3QuartersOutlined spin />}
           </Button>
         </div>
       </div>
@@ -202,5 +214,6 @@ function LoginForm({ handleLogin, setName }) {
 LoginForm.propTypes = {
   handleLogin: PropTypes.func.isRequired,
   setName: PropTypes.func.isRequired,
+  openRegisForm: PropTypes.func.isRequired,
 };
 export default LoginForm;
