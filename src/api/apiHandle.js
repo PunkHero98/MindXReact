@@ -92,6 +92,22 @@ const getDepartment = async () => {
   }
 };
 
+const updateDepartment = async (id, item) =>{
+  try {
+    const url = `/api/resources/department/${id}?apiKey=${apiKey}`;
+    const response = await fetch(url , {
+      method: 'PUT',
+      body: JSON.stringify(item),
+    });
+    if (!response.ok) {
+      return { success: false, message: "Network response was not ok" };
+    }
+    const data = await response.json();
+    return { success: true, data: data.data };
+  } catch (err) {
+    return { success: false, message: err.message };
+  }
+}
 const addUser = async (user) => {
   try {
     const url = `/api/resources/users?apiKey=${apiKey}`;
@@ -103,7 +119,7 @@ const addUser = async (user) => {
       return { success: false, message: "Network response was not ok" };
     }
     const data = await response.json();
-    return { success: true, data: data.data.data };
+    return { success: true, data: data.data };
   } catch (err) {
     return { success: false, message: err.message };
   }
@@ -116,4 +132,5 @@ export {
   deleteNote,
   getDepartment,
   addUser,
+  updateDepartment
 };

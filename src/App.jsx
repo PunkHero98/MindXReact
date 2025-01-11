@@ -110,8 +110,8 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(isRegis);
-  }, [isRegis]);
+    console.log(items);
+  }, [items]);
   return (
     <>
       {!isLogin ? (
@@ -132,6 +132,7 @@ function App() {
             } h-screen`}
           >
             <HeaderApp
+              isCalendarVisible={isCalendarVisible}
               handleSearch={handleSearch}
               openAddNew={openAddNew}
               isAddNewVisible={isAddNewVisible}
@@ -146,6 +147,7 @@ function App() {
                     key={`${Date.now()}-${index}`}
                     title={item}
                     items={filterItemsByStatus(item)}
+                    isCalendarVisible={isCalendarVisible}
                     toggle={isAddNewVisible}
                     onEdit={handleEditNote}
                     searchQuerry={searchQuerry}
@@ -168,7 +170,7 @@ function App() {
             />
           )}
           {isCalendarVisible && (
-            <CalendarWithEvents onCloseCalendar={closeCalendar} />
+            <CalendarWithEvents onCloseCalendar={closeCalendar} noteItems={items} />
           )}
         </>
       )}

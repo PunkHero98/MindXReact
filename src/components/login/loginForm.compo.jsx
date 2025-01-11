@@ -4,7 +4,7 @@ import {
   EyeTwoTone,
   Loading3QuartersOutlined,
 } from "@ant-design/icons";
-import { getUser } from "../../api/apiHandle.js";
+import { getUser , getDepartment } from "../../api/apiHandle.js";
 import { useState } from "react";
 import PropTypes from "prop-types";
 function LoginForm({ handleLogin, setName, openRegisForm }) {
@@ -22,6 +22,40 @@ function LoginForm({ handleLogin, setName, openRegisForm }) {
   const emailNoti = emailNotification === "---";
   const passwordNoti = passwordNotification === "---";
 
+  function getUsernamesByDepartmentName(response, departmentName) {
+    const department = response.find(group => group.name === departmentName);
+    if (department && department.member) {
+        return department.member
+            .filter(member => member !== null) // Loại bỏ giá trị null
+            .map(member => member.username); // Lấy danh sách username
+    }
+    return [];
+  }
+
+  const handleDepartment = async (name) => {
+    try {
+      const result = await getDepartment();
+      if (result.success === false) {
+        notification.error({
+          message:
+            "Error when get data !",
+          description: result.message,
+          placement: "topRight",
+          duration: 1.5,
+        });
+        return null;
+      }
+      return  getUsernamesByDepartmentName(result.data, name);
+    } catch (err) {
+      notification.error({
+        message: err.message,
+        description: "Please try it again later !",
+        placement: "topRight",
+        duration: 1.5,
+      });
+      return null;
+    }
+  };
   const checkLogin = async () => {
     try {
       setIsLoading(true);
@@ -36,7 +70,7 @@ function LoginForm({ handleLogin, setName, openRegisForm }) {
         setIsLoading(false);
         return;
       }
-      const user = result.find((item) => item.username === usernameValue);
+      const user = result.data.find((item) => item.username === usernameValue);
 
       const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -68,9 +102,10 @@ function LoginForm({ handleLogin, setName, openRegisForm }) {
           const userss = JSON.stringify({
             user_id: user["_id"],
             username: user.username,
+            department: user.department
           });
           setName(user.username);
-          const selectUser = result.map((item) => item.username);
+          const selectUser = await handleDepartment(user.department);
           localStorage.setItem("selectUser", JSON.stringify(selectUser));
           localStorage.setItem("currentUser", userss);
           setIsLoading(false);

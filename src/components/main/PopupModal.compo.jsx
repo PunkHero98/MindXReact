@@ -11,6 +11,7 @@ function PopupModal({
   items,
   searchQuerry,
   openAddNew,
+  isCalendarVisible
 }) {
   const filteredNotes = items.filter(
     (note) =>
@@ -21,7 +22,9 @@ function PopupModal({
     <Card
       className={`${
         toggle && "blur-sm opacity-50"
-      }mx-4 px-4 py-6 bg-[#E6ECF0] overflow-y-auto h-fit max-h-[75vh] min-h-[100px]`}
+      } ${
+        isCalendarVisible && "blur-sm opacity-50"
+      } mx-4 px-4 py-6 bg-[#E6ECF0] overflow-y-auto h-fit max-h-[75vh] min-h-[100px]`}
     >
       <div className="top_show flex justify-between items-center ">
         <div className="left flex items-center">
@@ -69,5 +72,6 @@ PopupModal.propTypes = {
   onEdit: PropTypes.func.isRequired,
   searchQuerry: PropTypes.string.isRequired,
   openAddNew: PropTypes.func.isRequired,
+  isCalendarVisible: PropTypes.bool.isRequired
 };
 export default PopupModal;

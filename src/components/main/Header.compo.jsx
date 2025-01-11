@@ -9,7 +9,8 @@ function HeaderApp({
   openAddNew,
   handleLogout,
   username,
-  openCalendar
+  openCalendar,
+  isCalendarVisible,
 }) {
   const items = [
     {
@@ -54,6 +55,8 @@ function HeaderApp({
       <div
         className={`${
           isAddNewVisible && "blur-sm opacity-50"
+        } ${
+          isCalendarVisible && "blur-sm opacity-50"
         } upperContainer flex justify-between items-center  py-10`}
       >
         <h1 className="pacifico text-3xl text-[#1677ff] cursor-default">
@@ -95,14 +98,14 @@ function HeaderApp({
           color="primary"
           className={`${
             isAddNewVisible && "blur-sm opacity-50"
-          } addNew pacifico rounded-l-3xl rounded-r-xl h-12 text-xl  `}
+          } ${isCalendarVisible && 'blur-sm opacity-50'} addNew pacifico rounded-l-3xl rounded-r-xl h-12 text-xl  `}
         >
           Add New
         </Button>
         <Button
           variant="solid"
           color="primary"
-          className={`${isAddNewVisible && 'blur-sm opacity-50'} h-12 rounded-r-xl rounded-l-xl ml-20 text-2xl`}
+          className={`${isAddNewVisible && 'blur-sm opacity-50'} ${isCalendarVisible && 'blur-sm opacity-50'} h-12 rounded-r-xl rounded-l-xl ml-20 text-2xl`}
           onClick={openCalendar}
           disabled={isAddNewVisible}
         >
@@ -113,7 +116,7 @@ function HeaderApp({
         disabled={isAddNewVisible} 
         variant="solid"
           color="primary"
-          className={`${isAddNewVisible && 'blur-sm opacity-50'} h-12 rounded-r-xl rounded-l-xl ml-20 text-2xl`}>
+          className={`${isAddNewVisible && 'blur-sm opacity-50'} ${isCalendarVisible && 'blur-sm opacity-50'} h-12 rounded-r-xl rounded-l-xl ml-20 text-2xl`}>
             <span className="pacifico text-xl mr-1">Manage Users</span>
             <UserSwitchOutlined />
           </Button>
@@ -129,5 +132,6 @@ HeaderApp.propTypes = {
   openAddNew: PropTypes.func.isRequired,
   handleLogout: PropTypes.func.isRequired,
   username: PropTypes.string.isRequired,
+  isCalendarVisible: PropTypes.bool.isRequired,
 };
 export default HeaderApp;

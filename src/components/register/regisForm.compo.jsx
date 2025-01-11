@@ -6,17 +6,15 @@ import {
   Typography,
   Select,
   notification,
-  message,
 } from "antd";
 import {
-  CheckOutlined,
   SyncOutlined,
   Loading3QuartersOutlined,
   CheckCircleTwoTone,
   LeftOutlined,
 } from "@ant-design/icons";
 import { useState, useEffect } from "react";
-import { getUser, getDepartment, addUser } from "../../api/apiHandle";
+import { getUser, getDepartment, addUser , updateDepartment } from "../../api/apiHandle";
 const RegisForm = ({ openRegisForm, isRegis }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -32,6 +30,7 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
 
   const [isLoadingUser, setIsLoadingUser] = useState(false);
   const [isLoadingEmail, setIsLoadingEmail] = useState(false);
+  const [isLoading , setIsLoading] = useState(false);
 
   const [stateForUserIcon, setStateForUserIcon] = useState(false);
   const [stateForEmailIcon, setStateForEmailIcon] = useState(false);
@@ -263,11 +262,69 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
     updateSaveState("confirmPass", "isMatch", true);
     return;
   };
+  const addUserToDeparment = async (data) => {
+    try{
+      const department = [...JSON.parse(localStorage.getItem('currentDeparment'))];
+      if(!department.length){
+      setIsLoading(false);
+        return;
+      };
+      let idIndex = 0;
+      department.forEach((item , index ) => {
+        if(item.name === data.deparment){
+          item.member.push({id: data.id , username: data.username});
+          idIndex = index
+        }
+      })
+      const result = await updateDepartment( department[idIndex]['_id'] , department[idIndex] );
+      if(result.success === false){
+        notification.error({
+          message: "Fail to fetching data. Please try it again later !",
+          description: result.message,
+          placement: "topRight",
+          duration: 1.5,
+        });
+      setIsLoading(false);
+        return;
+      }
+      localStorage.removeItem('currentDeparment');
+      notification.success({
+          message: "Register successfully !",
+          description: "Go to login page in a few seconds.",
+          placement: "topRight",
+          duration: 1.5,
+        });
+      setIsLoading(false);
+      setTimeout(() => {
+        openRegisForm()
+      }, 1000);;
+    }catch(err){
+      notification.error({
+        message: err.message,
+        description: "Please try it again later !",
+        placement: "topRight",
+        duration: 1.5,
+      });
+    }
+  }
   const handleAddUser = async (user) => {
     try {
       const result = await addUser(user);
+      if(result.success === false){
+        notification.error({
+          message: "Fail to register new user. Please try it again later !",
+          description: result.message , 
+          placement: "topRight",
+          duration: 1.5,
+        });
+      setIsLoading(false);
+        return;
+      }
+      const filterData = {username: result.data.username , id: result.data['_id'] , deparment: result.data.department};
+      addUserToDeparment(filterData);
     } catch (err) {
-      notification.error({
+    setIsLoading(false);
+    notification.error({
         message: err.message,
         description: "Please try it again later !",
         placement: "topRight",
@@ -277,7 +334,7 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
   };
   const handleSave = () => {
     const fieldsWithFalseOrNullStatus = [];
-
+    setIsLoading(true);
     saveState.forEach((field) => {
       const falseOrNullStatuses = [];
       field.status.forEach((statusObj) => {
@@ -314,7 +371,7 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
         });
       }
     });
-    console.log(fieldsWithFalseOrNullStatus.length);
+    
     if (!fieldsWithFalseOrNullStatus.length) {
       const data = {
         username: username,
@@ -323,7 +380,10 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
         department: deparment,
         role: "Member",
       };
+      handleAddUser(data);
+      return;
     }
+    setIsLoading(false);
   };
 
   return (
@@ -514,7 +574,10 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
             className="w-[43%] pacifico h-14 text-2xl "
             variant="outlined"
             color="primary"
-            onClick={openRegisForm}
+            onClick={() => {
+              localStorage.removeItem('currentDeparment');
+              openRegisForm();
+            }}
           >
             <LeftOutlined className="relative right-9" />
             Back
@@ -525,7 +588,7 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
             color="primary"
             onClick={handleSave}
           >
-            Sign Up
+            {!isLoading ? "Sign Up" : <Loading3QuartersOutlined spin />}
           </Button>
         </div>
       </div>
@@ -537,4 +600,5 @@ export default RegisForm;
 
 RegisForm.propTypes = {
   openRegisForm: PropTypes.func.isRequired,
+  isRegis: PropTypes.bool.isRequired
 };

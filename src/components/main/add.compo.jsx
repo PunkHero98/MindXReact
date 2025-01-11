@@ -47,7 +47,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
 
   const handleSave = async () => {
     try {
-      const { user_id } = JSON.parse(localStorage.getItem("currentUser"));
+      const { user_id , username } = JSON.parse(localStorage.getItem("currentUser"));
       const updatedNote = {
         user_id,
         title,
@@ -55,6 +55,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
         assignment,
         date,
         status,
+        asign_by: username
       };
       const result = await insertNote(updatedNote);
       if (result.success === true) {
