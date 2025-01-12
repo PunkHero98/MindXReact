@@ -143,6 +143,13 @@ function LoginForm({ handleLogin, setName, openRegisForm }) {
 
   const className = "h-10 text-base mt-2 merriweather";
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      checkLogin();
+    }
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-stone-300 ">
       <div className="main py-6 bg-white h-2/3 w-1/3 border-2 rounded-xl border-stone-300 flex flex-col items-center justify-between">
@@ -151,7 +158,7 @@ function LoginForm({ handleLogin, setName, openRegisForm }) {
             Work Management System
           </h1>
         </div>
-        <form action="" className="w-full flex flex-col items-center mt-4 ">
+        <form action="" onKeyDown={handleKeyDown} className="w-full flex flex-col items-center mt-4 ">
           <div className="w-full px-10">
             <label
               htmlFor="usernameInput"

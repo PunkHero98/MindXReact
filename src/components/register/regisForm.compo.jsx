@@ -386,9 +386,16 @@ const RegisForm = ({ openRegisForm, isRegis }) => {
     setIsLoading(false);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-stone-300">
-      <div className="p-6  bg-white h-4/5 w-1/2 border-2 rounded-xl border-stone-300 flex flex-col items-center justify-between">
+      <div className="p-6  bg-white h-4/5 w-1/2 border-2 rounded-xl border-stone-300 flex flex-col items-center justify-between" onKeyDown={handleKeyDown}>
         <div className="top w-full flex flex-col">
           <div>
             <Typography.Title

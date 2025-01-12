@@ -85,7 +85,7 @@ const CalendarWithEvents = ({ onCloseCalendar , noteItems }) => {
         {selectedDate && events[selectedDate] ? (
           <ul>
             {events[selectedDate].map((event, index) => (
-              <li key={index} className="hover:shadow-md cursor-pointer hover:shadow-black rounded-md p-2 my-2" onClick={() => handleEventClick(event.id)}>
+              <li key={index} className="hover:outline hover:outline-2 hover:outline-[#1677ff] cursor-pointer rounded-md p-2 my-2" onClick={() => handleEventClick(event.id)}>
                 <Badge status={event.type} text={event.content} />
               </li>
             ))}
@@ -104,31 +104,31 @@ const CalendarWithEvents = ({ onCloseCalendar , noteItems }) => {
             <div className="flex flex-col">
               <div className="inline-block border-b border-b-stone-300">
                 <label className="text-sm roboto-slab-base">Title: </label>
-                <Typography.Title className="mt-2 merriweather-bolder" level={5}>
+                <Typography.Title className="mt-2 merriweather-bolder" style={{color: '#1677ff' , fontStyle: 'italic'}}  level={5}>
                   {eventDetails.title}
                 </Typography.Title>
               </div>
               <div className="inline-block mt-4 border-b border-b-stone-300">
                 <label className="text-sm roboto-slab-base">Description: </label>
-                <Typography.Paragraph className="mt-2 merriweather-bolder">
+                <Typography.Paragraph className="mt-2 merriweather-bolder" style={{color: '#1677ff' , fontStyle: 'italic'}} >
                   {eventDetails.description}
                 </Typography.Paragraph>
               </div>
               <div className="inline-block mt-4 border-b border-b-stone-300">
                 <label className="text-sm roboto-slab-base">Assigned By: </label>
-                <Typography.Title className="mt-2 merriweather-bolder" level={5}>
+                <Typography.Title className="mt-2 merriweather-bolder" level={5} style={{color: '#1677ff' , fontStyle: 'italic'}} >
                   {eventDetails.asign_by}
                 </Typography.Title>
               </div>
               <div className="inline-block mt-4 border-b border-b-stone-300">
                 <label className="text-sm roboto-slab-base">Status: </label>
-                <Typography.Title className="mt-2 merriweather-bolder" level={5}>
+                <Typography.Title className="mt-2 merriweather-bolder" level={5} style={{color: '#1677ff' , fontStyle: 'italic'}} >
                   {eventDetails.status}
                 </Typography.Title>
               </div>
               <div className="inline-block mt-4 border-b border-b-stone-300">
                 <label className="text-sm roboto-slab-base">Due Day: </label>
-                <Typography.Title className="mt-2 merriweather-bolder" level={5}>
+                <Typography.Title className="mt-2 merriweather-bolder" level={5} style={{color: '#1677ff' , fontStyle: 'italic'}} >
                   {eventDetails.date}
                 </Typography.Title>
               </div>
