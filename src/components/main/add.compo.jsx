@@ -18,12 +18,24 @@ function Addnew({ onXmarkClick, onSave, note }) {
   const [id, setId] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState("");
   const [assignment, setAssignment] = useState("");
   const [status, setStatus] = useState("To do");
+
   const [check, setCheck] = useState("---");
+  const [descriptNoti , setDescriptNoti] = useState('---');
+  const [dateNoti , setDateNoti] = useState('---');
+  const [assignNoti , setAssignNoti] = useState('---');
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadingForDelete, setLoadingForDelete] = useState(false);
+
+  const checkState = check === '---';
+  const descriptState = descriptNoti === '---';
+  const dateState = dateNoti === '---';
+  const assignState = assignNoti === '---';
+
+  const listCard = ["To do", "In Progress", "In Review", "Done"];
 
   useEffect(() => {
     if (note) {
@@ -35,6 +47,14 @@ function Addnew({ onXmarkClick, onSave, note }) {
       setStatus(note.status);
     }
   }, [note]);
+  const renderSelectStatus = () =>{
+    return [
+      ...listCard.map( f => ({
+        label: <span>{f}</span>,
+        value: f,
+      }))
+    ];
+  };
   const renderSelect = () => {
     const users = JSON.parse(localStorage.getItem("selectUser"));
     return [
@@ -176,14 +196,33 @@ function Addnew({ onXmarkClick, onSave, note }) {
     setStatus(value);
   };
   const checkTitle = () => {
-    if (title == "") {
+    let state = true;
+    if (!title) {
       setCheck("Title is required");
-    } else {
+      state = false;
+    } 
+    if(!date){
+      setDateNoti('Date is required');
+      state = false;
+    }
+    if(!description){
+      setDescriptNoti('Description is required');
+      state = false;
+    }
+    if(!assignment){
+      setAssignNoti('Assignment is required');
+      state = false;
+    }
+    if(state){
       setCheck("---");
       id ? handleEdit() : handleSave();
       setIsLoading(true);
     }
   };
+
+  useEffect(()=>{
+    console.log(status)
+  } , [status])
   const showDeleteConfirm = () => {
     confirm({
       title: "Are you sure delete this task?",
@@ -227,13 +266,13 @@ function Addnew({ onXmarkClick, onSave, note }) {
             showCount
             value={title}
             style={{ height: 50 }}
-            status={check == "---" ? "" : "error"}
+            status={!checkState && "error"}
             maxLength={50}
             onChange={(e) => setTitle(e.target.value)}
           />
           <div
             className={`merriweather-bolder text-sm mt-1 ${
-              check == "---" ? "opacity-0" : "text-red-500"
+              checkState ? "opacity-0" : "text-red-500"
             }`}
           >
             <span>{check}</span>
@@ -248,16 +287,17 @@ function Addnew({ onXmarkClick, onSave, note }) {
             className="merriweather"
             value={date ? moment(date, "MMM Do YYYY") : null}
             style={{ height: 50 }}
+            status={!dateState && 'error'}
             format="DD-MMM-YYYY"
             onChange={handleDate}
             needConfirm
           />
-          <div className="opacity-0">
-            <span>----</span>
+          <div className={`${dateState ? 'opacity-0' : 'text-red-500' } merriweather-bolder text-sm mt-1`}>
+            <span>{dateNoti}</span>
           </div>
         </div>
       </div>
-      <div className="third flex gap-6">
+      <div className="third flex gap-6 mt-2">
         <div className="description w-4/6 flex flex-col">
           <label className="merriweather-bolder text-lg mb-1" htmlFor="">
             Description <span className="text-red-500">*</span>
@@ -266,6 +306,7 @@ function Addnew({ onXmarkClick, onSave, note }) {
           <TextArea
             placeholder="Enter description"
             className="merriweather"
+            status={!descriptState && 'error'}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             autoSize={{
@@ -273,8 +314,8 @@ function Addnew({ onXmarkClick, onSave, note }) {
               maxRows: 6,
             }}
           />
-          <div className="opacity-0">
-            <span>----</span>
+          <div className={`${descriptState ? 'opacity-0' : 'text-red-500'} merriweather-bolder text-sm mt-1`}>
+            <span>{descriptNoti}</span>
           </div>
         </div>
         <div className="assign w-2/6 flex flex-col">
@@ -287,16 +328,17 @@ function Addnew({ onXmarkClick, onSave, note }) {
               zIndex: 50,
             }}
             className="merriweather"
+            status={!assignState && 'error'}
             value={assignment}
             onChange={handleAssingment}
             options={renderSelect()}
           />
-          <div className="opacity-0">
-            <span>----</span>
+          <div className={`${assignState ? 'opacity-0' : 'text-red-500' } merriweather-bolder text-sm mt-1`}>
+            <span>{assignNoti}</span>
           </div>
         </div>
       </div>
-      <div className="fourth_row flex flex-col">
+      <div className="fourth_row flex flex-col mt-2">
         <label className="merriweather-bolder text-lg mb-1" htmlFor="">
           Status <span className="text-red-500">*</span>
         </label>
@@ -309,27 +351,10 @@ function Addnew({ onXmarkClick, onSave, note }) {
           }}
           value={status}
           onChange={handleStatus}
-          options={[
-            {
-              label: <span>To do</span>,
-              value: "To do",
-            },
-            {
-              label: <span>In Progress</span>,
-              value: "In Progress",
-            },
-            {
-              label: <span>In Review</span>,
-              value: "In Review",
-            },
-            {
-              label: <span>Done</span>,
-              value: "Done",
-            },
-          ]}
+          options={renderSelectStatus()}
         />
         <div className="opacity-0">
-          <span>----</span>
+          <span>---</span>
         </div>
       </div>
       <div className="last_row flex justify-between items-center mt-2">
@@ -363,7 +388,7 @@ Addnew.propTypes = {
   note: PropTypes.shape({
     _id: PropTypes.string,
     title: PropTypes.string,
-    date: PropTypes.string.isRequired,
+    date: PropTypes.string,
     description: PropTypes.string.isRequired,
     assignment: PropTypes.string.isRequired,
     status: PropTypes.string.isRequired,

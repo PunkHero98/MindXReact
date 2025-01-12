@@ -62,7 +62,6 @@ function App() {
   };
   useEffect(() => {
     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
     if (currentUser && currentUser.username) {
       fetchData();
       setIsLogin(true);
@@ -110,7 +109,7 @@ function App() {
   };
 
   useEffect(() => {
-    console.log(items);
+    // console.log(items);
   }, [items]);
   return (
     <>
